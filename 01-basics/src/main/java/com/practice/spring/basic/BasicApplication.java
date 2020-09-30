@@ -24,7 +24,7 @@ public class BasicApplication {
 //				BinarySearch binarySearch = new BinarySearch(new BubbleSortAlgorithm());
 
 		BinarySearch binarySearch = appContext.getBean(BinarySearch.class);
-		int res = binarySearch.binarySearch(new int[] { 1,2,3}, 4);
+		int res = binarySearch.binarySearch(new int[] { 1,2,3 }, 4);
 		System.out.println(res);
 
 		// need to be closed
