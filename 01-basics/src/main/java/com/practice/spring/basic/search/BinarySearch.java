@@ -8,8 +8,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+//import javax.annotation.PostConstruct;
+//import javax.annotation.PreDestroy;
 
 // Implementing loosely coupled algorithm
 
@@ -40,13 +40,13 @@ public class BinarySearch {
         return find;
     }
 
-    @PostConstruct // will be executed after bean constructed
-    public void postConstruct() {
-        logger.info("{}", "POST CONSTRUCT CALLED");
-    }
+//    @PostConstruct // will be executed after bean constructed
+//    public void postConstruct() {
+//        logger.info("{}", "POST CONSTRUCT CALLED");
+//    }
 
-    @PreDestroy // will be executed when bean is being destroy
-    public void preDestroy() {
-        logger.info("{}", "PRE DESTROY CALLED");
-    }
+//    @PreDestroy // will be executed when bean is being destroy
+//    public void preDestroy() {
+//        logger.info("{}", "PRE DESTROY CALLED");
+//    }
 }
