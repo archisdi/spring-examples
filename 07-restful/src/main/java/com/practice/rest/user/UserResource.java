@@ -4,34 +4,54 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserResource {
     @Autowired
     UserDaoService userDaoService;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PostRepository postRepository;
+
     @GetMapping("/users")
     public List<User> retrieveAllUsers() {
-        return userDaoService.findAll();
+        return userRepository.findAll();
     }
 
     @GetMapping("/users/{id}")
-    public User getOneUser(@PathVariable int id) {
-        User theUser = userDaoService.findOne(id);
+    public EntityModel<User> getOneUser(@PathVariable int id) {
+        Optional<User> user = userRepository.findById(id);
 
-        if (theUser == null) {
+        if (user.isEmpty()) {
             throw new UserNotFoundException();
         }
 
-        return theUser;
+        //"all-users", SERVER_PATH + "/users"
+        EntityModel<User> resource = EntityModel.of(user.get());
+
+        WebMvcLinkBuilder linkTo =
+                linkTo(methodOn(this.getClass()).retrieveAllUsers());
+
+        resource.add(linkTo.withRel("all-users"));
+
+        return resource;
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User newUser = userDaoService.save(user);
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User newUser = userRepository.save(user);
         URI url = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
@@ -42,10 +62,34 @@ public class UserResource {
 
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable int id) {
-        User user = userDaoService.deleteById(id);
+        userRepository.deleteById(id);
+    }
 
-        if (user == null) {
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrieveUserPosts(@PathVariable int id) {
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isEmpty()) {
             throw new UserNotFoundException();
         }
+
+        return user.get().getPosts();
+    }
+
+    @PostMapping("/users/{id}/posts")
+    public Post createUserPost(
+            @PathVariable int id,
+            @Valid @RequestBody Post post
+    ) {
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        post.setUser(user.get());
+        postRepository.save(post);
+
+        return post;
     }
 }
